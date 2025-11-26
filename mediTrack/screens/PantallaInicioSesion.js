@@ -6,14 +6,14 @@ export default function PantallaInicioSesion({ navigation}) {
   const [password, setPassword] = useState("");
 
   function handleLogin() {
-  if (email.trim() === "" || password.trim() === "") {
-    Alert.alert("Error", "Ingresa tu correo y contraseña");
-    return;
-  }
+    if (email.trim() === "" || password.trim() === "") {
+      Alert.alert("Error", "Ingresa tu correo y contraseña");
+      return;
+    }
 
-  // Navega al panel principal
-  navigation.replace("TabNavigation");
-}
+    // Navega al panel principal
+    navigation.replace("TabNavigation");
+  }
 
 
   return (

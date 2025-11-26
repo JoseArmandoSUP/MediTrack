@@ -47,7 +47,7 @@ export default function PantallaInicio({ navigation }) {
 const styles = StyleSheet.create({
   splashContainer: {
     flex: 1,
-    backgroundColor: "#2D8BFF",
+    backgroundColor: "#00aae4",
   },
   overlay: {
     flexGrow: 1,
