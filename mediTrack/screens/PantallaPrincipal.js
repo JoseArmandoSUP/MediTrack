@@ -70,6 +70,11 @@ export default function PantallaPrincipal({ navigation }) {
         <Text style={styles.optionText}>Reportes</Text>
       </TouchableOpacity>
 
+      <TouchableOpacity style={styles.option} onPress={()=>navigation.navigate("PantallaEditarMedicamento")}>
+        <MaterialIcons name="description" size={22} color="#2D8BFF" />
+        <Text style={styles.optionText}>Editar Medicamento</Text>
+      </TouchableOpacity>
+
     </ScrollView>
   );
 }
