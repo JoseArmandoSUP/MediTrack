@@ -4,6 +4,7 @@ import PantallaInicio from "../screens/PantallaInicio";
 import PantallaInicioSesion from "../screens/PantallaInicioSesion";
 import PantallaRegistro from "../screens/PantallaRegistro";
 import TabNavigation from "./TabNavigation";
+import MisMedicamentos from "../screens/MisMedicamentos";
 
 import PantallaAgregarMedicamento from "../screens/PantallaAgregarMedicamento";
 import PantallaEditarMedicamento from "../screens/PantallaEditarMedicamento";
@@ -26,6 +27,7 @@ export default function StackNavigation() {
       <Stack.Screen name="AgregarMedicamento" component={PantallaAgregarMedicamento} />
       <Stack.Screen name="PantallaEditarMedicamento" component={PantallaEditarMedicamento} />
 
+      <Stack.Screen name="MisMedicamentos" component={MisMedicamentos}/>
     </Stack.Navigator>
   );
 }

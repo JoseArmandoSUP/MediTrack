@@ -50,7 +50,9 @@ export default function PantallaPrincipal({ navigation }) {
       </View>
 
       {/* OPCIONES */}
-      <TouchableOpacity style={styles.option}>
+      <TouchableOpacity style={styles.option} 
+        onPress={()=> navigation.navigate("MisMedicamentos")}
+      >
         <Ionicons name="medkit-outline" size={22} color="#2D8BFF" />
         <Text style={styles.optionText}>Mis medicinas</Text>
       </TouchableOpacity>

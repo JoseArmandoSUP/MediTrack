@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
+
 export default function PantallaAgregarMedicamento({ navigation }) {
   // Estados
   const [nombre, setNombre] = useState("");

@@ -43,6 +43,8 @@ export default function TabNavigation() {
         }}
       />
 
+      
+
       {/*<Tab.Screen
         name="Perfil"
         component={Perfil}
