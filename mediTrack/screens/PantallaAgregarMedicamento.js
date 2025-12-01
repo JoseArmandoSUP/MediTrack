@@ -41,12 +41,6 @@ export default function PantallaAgregarMedicamento({ navigation }) {
         <View style={{ width: 30 }} />
       </View>
 
-      {/* Escanear receta */}
-      <TouchableOpacity style={styles.scanBox}>
-        <Ionicons name="scan-outline" size={40} color="#2D8BFF" />
-        <Text style={styles.scanText}>ESCANEAR RECETA MÉDICA</Text>
-      </TouchableOpacity>
-
       {/* FORMULARIO */}
       <TextInput
         style={styles.input}

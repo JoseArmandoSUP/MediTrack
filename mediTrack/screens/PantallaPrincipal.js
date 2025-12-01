@@ -3,6 +3,9 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, } from "re
 import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 
 export default function PantallaPrincipal({ navigation }) {
+  
+  
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       
@@ -50,7 +53,7 @@ export default function PantallaPrincipal({ navigation }) {
       </View>
 
       {/* OPCIONES */}
-      <TouchableOpacity style={styles.option}>
+      <TouchableOpacity style={styles.option} onPress={()=>navigation.navigate("PantallaMisMedicinas")}>
         <Ionicons name="medkit-outline" size={22} color="#2D8BFF" />
         <Text style={styles.optionText}>Mis medicinas</Text>
       </TouchableOpacity>
@@ -71,7 +74,7 @@ export default function PantallaPrincipal({ navigation }) {
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.option} onPress={()=>navigation.navigate("PantallaEditarMedicamento")}>
-        <MaterialIcons name="description" size={22} color="#2D8BFF" />
+        <MaterialIcons name="pencil" size={22} color="#2D8BFF" />
         <Text style={styles.optionText}>Editar Medicamento</Text>
       </TouchableOpacity>
 
