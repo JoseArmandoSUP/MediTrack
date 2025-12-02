@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
+  SafeAreaView,
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
   Alert,
-  ActivityIndicator
+  ActivityIndicator,
+  Platform,
+  StatusBar
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -15,9 +18,11 @@ import { MedicamentoController } from "../controllers/MedicamentoController";
 const controller = new MedicamentoController();
 
 export default function MisMedicinas({ navigation, route }) {
-
   const [lista, setLista] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Ajuste de padding para evitar que la UI se superponga con la barra superior
+  const androidTopPadding = Platform.OS === "android" ? (StatusBar.currentHeight || 0) + 8 : 0;
 
   // SELECT – Cargar medicamentos
   const cargarMedicamentos = useCallback(async () => {
@@ -46,13 +51,12 @@ export default function MisMedicinas({ navigation, route }) {
     return () => controller.removeListener(cargarMedicamentos);
   }, [cargarMedicamentos]);
 
-  //-------------Regcargar Datos---------------
+  //-------------Recargar Datos---------------
   useEffect(() => {
     if (route?.params?.refrescar) {
       cargarMedicamentos();
     }
   }, [route?.params]);
-
 
   function irEditar(item) {
     navigation.navigate("PantallaEditarMedicamento", { medicamento: item });
@@ -63,7 +67,9 @@ export default function MisMedicinas({ navigation, route }) {
   }
 
   return (
-    <View style={styles.container}>
+    // Usamos SafeAreaView para respetar "notch" / areas seguras en iOS,
+    // y añadimos padding extra en Android para evitar que la vista pegue contra la barra superior.
+    <SafeAreaView style={[styles.container, { paddingTop: androidTopPadding }]}>
       <Text style={styles.title}>Mis Medicinas</Text>
 
       {/* LOADING */}
@@ -109,7 +115,7 @@ export default function MisMedicinas({ navigation, route }) {
       <TouchableOpacity style={styles.addButton} onPress={irAgregar}>
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 

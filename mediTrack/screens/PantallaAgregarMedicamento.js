@@ -7,6 +7,9 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  SafeAreaView,
+  Platform,
+  StatusBar,
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
@@ -24,6 +27,9 @@ export default function PantallaAgregarMedicamento({ navigation }) {
   const [horaInicio, setHoraInicio] = useState("");
 
   const [guardando, setGuardando] = useState(false);
+
+  // Ajuste de padding para Android y SafeArea para iOS/notch
+  const androidTopPadding = Platform.OS === "android" ? (StatusBar.currentHeight || 0) : 0;
 
   // Inicializar SQLite una sola vez
   useEffect(() => {
@@ -65,86 +71,94 @@ export default function PantallaAgregarMedicamento({ navigation }) {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      
-      {/* ENCABEZADO */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={26} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>AGREGAR MEDICAMENTO +</Text>
-        <View style={{ width: 30 }} />
-      </View>
-
-      {/* FORMULARIO */}
-      <TextInput
-        style={styles.input}
-        placeholder="Nombre del medicamento"
-        value={nombre}
-        onChangeText={setNombre}
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Dosis (eje. 50 mg)"
-        value={dosis}
-        onChangeText={setDosis}
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Frecuencia (eje. cada 8 horas)"
-        value={frecuencia}
-        onChangeText={setFrecuencia}
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Notas adicionales"
-        value={notas}
-        onChangeText={setNotas}
-      />
-
-      {/* FECHA Y HORA */}
-      <View style={styles.row}>
-        <TouchableOpacity style={styles.dateButton}>
-          <MaterialIcons name="date-range" size={20} color="#2D8BFF" />
-          <TextInput
-            style={styles.dateInput}
-            placeholder="Fecha de inicio"
-            value={fechaInicio}
-            onChangeText={setFechaInicio}
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.dateButton}>
-          <Ionicons name="time-outline" size={20} color="#2D8BFF" />
-          <TextInput
-            style={styles.dateInput}
-            placeholder="Hora de inicio"
-            value={horaInicio}
-            onChangeText={setHoraInicio}
-          />
-        </TouchableOpacity>
-      </View>
-
-      {/* BOTÓN VERDE */}
-      <TouchableOpacity
-        style={styles.btnAgregar}
-        onPress={guardarMedicamento}
-        disabled={guardando}
+    <SafeAreaView style={[styles.safeArea, { paddingTop: androidTopPadding }]}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.btnText}>
-          {guardando ? "Guardando..." : "AGREGAR MEDICAMENTO"}
-        </Text>
-        <Ionicons name="add-circle-outline" size={30} color="#fff" />
-      </TouchableOpacity>
-    </ScrollView>
+        {/* ENCABEZADO */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={26} color="black" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>AGREGAR MEDICAMENTO +</Text>
+          <View style={{ width: 30 }} />
+        </View>
+
+        {/* FORMULARIO */}
+        <TextInput
+          style={styles.input}
+          placeholder="Nombre del medicamento"
+          value={nombre}
+          onChangeText={setNombre}
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder="Dosis (eje. 50 mg)"
+          value={dosis}
+          onChangeText={setDosis}
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder="Frecuencia (eje. cada 8 horas)"
+          value={frecuencia}
+          onChangeText={setFrecuencia}
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder="Notas adicionales"
+          value={notas}
+          onChangeText={setNotas}
+        />
+
+        {/* FECHA Y HORA */}
+        <View style={styles.row}>
+          <TouchableOpacity style={styles.dateButton}>
+            <MaterialIcons name="date-range" size={20} color="#2D8BFF" />
+            <TextInput
+              style={styles.dateInput}
+              placeholder="Fecha de inicio"
+              value={fechaInicio}
+              onChangeText={setFechaInicio}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.dateButton}>
+            <Ionicons name="time-outline" size={20} color="#2D8BFF" />
+            <TextInput
+              style={styles.dateInput}
+              placeholder="Hora de inicio"
+              value={horaInicio}
+              onChangeText={setHoraInicio}
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* BOTÓN VERDE */}
+        <TouchableOpacity
+          style={styles.btnAgregar}
+          onPress={guardarMedicamento}
+          disabled={guardando}
+        >
+          <Text style={styles.btnText}>
+            {guardando ? "Guardando..." : "AGREGAR MEDICAMENTO"}
+          </Text>
+          <Ionicons name="add-circle-outline" size={30} color="#fff" />
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 // ESTILOS
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#E8F2FF",
+  },
   container: {
     padding: 20,
     backgroundColor: "#E8F2FF",
