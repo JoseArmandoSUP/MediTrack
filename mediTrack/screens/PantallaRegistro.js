@@ -5,24 +5,72 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
-  Button,
   ScrollView,
   Alert,
   Switch,
   Image
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function PantallaRegistro({ navigation }) {
-  
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
   const [accepted, setAccepted] = useState(false);
 
-  function register() {
+  const validateEmail = (value) => {
+    const re = /\S+@\S+\.\S+/;
+    return re.test(value);
+  };
+
+  // Navegación robusta al login: intenta parent, luego navigate, luego reset al root
+  function navigateToLoginRobust() {
+    try {
+      // 1) Si hay parent (navigator superior), intentar ahí
+      const parent = navigation.getParent ? navigation.getParent() : null;
+      if (parent && parent.navigate) {
+        parent.navigate("PantallaInicioSesion");
+        return;
+      }
+
+      // 2) Intentar en el navigator actual
+      if (navigation && navigation.navigate) {
+        navigation.navigate("PantallaInicioSesion");
+        return;
+      }
+    } catch (e) {
+      console.warn("Error intentando navegar normalmente:", e);
+    }
+
+    try {
+      // 3) Fallback: reset a la ruta raíz conocida (garantiza navegación aunque esté anidado)
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "PantallaInicioSesion" }],
+      });
+      return;
+    } catch (e) {
+      console.warn("reset falló:", e);
+    }
+
+    // 4) Ultimo recurso: informar al usuario
+    Alert.alert("Registro", "Registro completado. Reinicia la app o vuelve al inicio manualmente.");
+  }
+
+  async function register() {
     if (!name || !email || !pass || !confirmPass) {
       Alert.alert("Error", "Por favor llena todos los campos");
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      Alert.alert("Error", "Ingresa un correo válido");
+      return;
+    }
+
+    if (pass.length < 6) {
+      Alert.alert("Error", "La contraseña debe tener al menos 6 caracteres");
       return;
     }
 
@@ -36,14 +84,37 @@ export default function PantallaRegistro({ navigation }) {
       return;
     }
 
-    Alert.alert("Registro exitoso", "Ahora puedes iniciar sesión");
-    navigation.navigate("Login");
+    try {
+      const raw = await AsyncStorage.getItem("@users");
+      const users = raw ? JSON.parse(raw) : [];
+
+      const exists = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+      if (exists) {
+        Alert.alert("Error", "Ya existe una cuenta con ese correo");
+        return;
+      }
+
+      const nuevo = {
+        id: Date.now(),
+        name,
+        email: email.toLowerCase(),
+        password: pass,
+        created_at: new Date().toISOString(),
+      };
+
+      users.push(nuevo);
+      await AsyncStorage.setItem("@users", JSON.stringify(users));
+
+      Alert.alert("Registro exitoso", "Ahora puedes iniciar sesión");
+      navigateToLoginRobust();
+    } catch (err) {
+      console.error("Error registrando usuario:", err);
+      Alert.alert("Error", "No se pudo completar el registro");
+    }
   }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      
-      {/* LOGO */}
       <Image source={require("../assets/MediTrackLogo.png")} style={styles.logo} />
 
       <Text style={styles.title}>REGISTRARSE</Text>
@@ -80,7 +151,6 @@ export default function PantallaRegistro({ navigation }) {
         secureTextEntry
       />
 
-      {/* Aceptar términos */}
       <View style={styles.row}>
         <Switch value={accepted} onValueChange={setAccepted} />
         <Text style={styles.acceptText}>He leído los términos y condiciones</Text>
@@ -90,16 +160,13 @@ export default function PantallaRegistro({ navigation }) {
         <Text style={styles.terms}>Ver términos y condiciones</Text>
       </TouchableOpacity>
 
-      {/* Botón principal */}
       <TouchableOpacity style={styles.registerBtn} onPress={register}>
         <Text style={styles.registerText}>Registrarse</Text>
       </TouchableOpacity>
 
-      {/* Ir al login */}
-      <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+      <TouchableOpacity onPress={navigateToLoginRobust}>
         <Text style={styles.loginLink}>¿Ya tienes cuenta? Inicia sesión</Text>
       </TouchableOpacity>
-
     </ScrollView>
   );
 }
