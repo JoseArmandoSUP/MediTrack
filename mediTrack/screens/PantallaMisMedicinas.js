@@ -102,10 +102,10 @@ export default function MisMedicinas({ navigation, route }) {
 
       <TouchableOpacity 
         style={styles.backButtonBottom} 
-        onPress={() => navigation.navigate("PantallaPrincipal")}
+        onPress={() => navigation.navigate("TabNavigation")}
       >
-        <Ionicons name="home-outline" size={22} color="white" />
-        <Text style={{ color: "white", marginLeft: 8, fontWeight: "600" }}>
+        <Ionicons name="home-outline" size={22} color="green" />
+        <Text style={{ color: "green", marginLeft: 8, fontWeight: "600" }}>
           Volver al menú
         </Text>
       </TouchableOpacity>
@@ -118,7 +118,6 @@ export default function MisMedicinas({ navigation, route }) {
   );
 }
 
-// ESTILOS
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -161,4 +160,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     elevation: 5,
   },
+
+  backButtonBottom: {
+  marginTop: 20,           
+  alignSelf: "center",     
+  backgroundColor: "white",
+  borderWidth: 2,
+  borderColor: "green",
+  paddingVertical: 10,
+  paddingHorizontal: 20,
+  borderRadius: 12,
+  flexDirection: "row",
+  alignItems: "center",
+},
+
 });
