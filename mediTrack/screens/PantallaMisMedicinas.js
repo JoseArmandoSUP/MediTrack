@@ -1,22 +1,58 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Alert,
+  ActivityIndicator
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function MisMedicinas({ navigation }) {
+import { MedicamentoController } from "../controllers/MedicamentoController";
 
-  // Temporal: una lista demostrativa
-  // Luego la remplazamos con SELECT desde SQLite
-  const [lista, setLista] = useState([
-    { id: 1, nombre: "Paracetamol 500 mg", frecuencia: "Cada 8 horas" },
-    { id: 2, nombre: "Ibuprofeno 300 mg", frecuencia: "Cada 12 horas" },
-    { id: 3, nombre: "Dropropizina 10 ml", frecuencia: "Cada 6 horas" },
-  ]);
+const controller = new MedicamentoController();
+
+export default function MisMedicinas({ navigation, route }) {
+
+  const [lista, setLista] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // SELECT – Cargar medicamentos
+  const cargarMedicamentos = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await controller.obtenerMedicamentos();
+      setLista(data);
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Inicializar BD y cargar datos
+  useEffect(() => {
+    const init = async () => {
+      await controller.initialize();
+      await cargarMedicamentos();
+    };
+    init();
+
+    // Suscribir cambios automáticos
+    controller.addListener(cargarMedicamentos);
+
+    return () => controller.removeListener(cargarMedicamentos);
+  }, [cargarMedicamentos]);
+
+  //-------------Regcargar Datos---------------
+  useEffect(() => {
+    if (route?.params?.refrescar) {
+      cargarMedicamentos();
+    }
+  }, [route?.params]);
+
 
   function irEditar(item) {
     navigation.navigate("PantallaEditarMedicamento", { medicamento: item });
@@ -30,33 +66,54 @@ export default function MisMedicinas({ navigation }) {
     <View style={styles.container}>
       <Text style={styles.title}>Mis Medicinas</Text>
 
-      <ScrollView style={{ width: "100%" }}>
-
-        {lista.map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            style={styles.card}
-            onPress={() => irEditar(item)}
-          >
-            <View>
-              <Text style={styles.cardTitle}>{item.nombre}</Text>
-              <Text style={styles.cardSubtitle}>{item.frecuencia}</Text>
+      {/* LOADING */}
+      {loading ? (
+        <View style={{ marginTop: 40 }}>
+          <ActivityIndicator size="large" color="#2D8BFF" />
+          <Text style={{ textAlign: "center", marginTop: 10 }}>
+            Cargando medicamentos...
+          </Text>
+        </View>
+      ) : (
+        <ScrollView style={{ width: "100%" }}>
+          {lista.length === 0 ? (
+            <View style={{ padding: 20, alignItems: "center" }}>
+              <Text style={{ color: "#555", marginBottom: 5 }}>
+                No hay medicamentos registrados
+              </Text>
+              <Text style={{ color: "#888" }}>
+                Agrega uno con el botón de abajo
+              </Text>
             </View>
-            <Ionicons name="chevron-forward" size={24} color="#2D8BFF" />
-          </TouchableOpacity>
-        ))}
-
-      </ScrollView>
+          ) : (
+            lista.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.card}
+                onPress={() => irEditar(item)}
+              >
+                <View>
+                  <Text style={styles.cardTitle}>{item.nombre}</Text>
+                  <Text style={styles.cardSubtitle}>
+                    Frecuencia: {item.frecuencia}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={24} color="#2D8BFF" />
+              </TouchableOpacity>
+            ))
+          )}
+        </ScrollView>
+      )}
 
       {/* BOTÓN AGREGAR */}
       <TouchableOpacity style={styles.addButton} onPress={irAgregar}>
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>
-
     </View>
   );
 }
 
+// ESTILOS
 const styles = StyleSheet.create({
   container: {
     flex: 1,

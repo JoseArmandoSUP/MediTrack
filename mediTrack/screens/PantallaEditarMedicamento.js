@@ -9,56 +9,87 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { MedicamentoController } from "../controllers/MedicamentoController";
+
+const controller = new MedicamentoController();
 
 export default function PantallaEditarMedicamento({ route, navigation }) {
-  
-  // Recibimos los datos del medicamento desde la pantalla anterior
+
   const { medicamento } = route.params || {};
 
   // Estados del formulario
   const [nombre, setNombre] = useState("");
   const [dosis, setDosis] = useState("");
   const [frecuencia, setFrecuencia] = useState("");
-  const [notas, setNotas] = useState("");
-  const [fechaInicio, setFechaInicio] = useState("");
-  const [horaInicio, setHoraInicio] = useState("");
+  const [notas, setNotas] = useState("");   // No se guarda, solo decorativo
+  const [fechaInicio, setFechaInicio] = useState(""); // No se guarda
+  const [horaInicio, setHoraInicio] = useState("");   // No se guarda
 
   useEffect(() => {
     if (medicamento) {
       setNombre(medicamento.nombre);
       setDosis(medicamento.dosis);
       setFrecuencia(medicamento.frecuencia);
-      setNotas(medicamento.notas);
-      setFechaInicio(medicamento.fechaInicio);
-      setHoraInicio(medicamento.horaInicio);
+
+      // Estos valores no existen en BD (opcional visual)
+      setNotas(medicamento.notas || "");
+      setFechaInicio(medicamento.fechaInicio || "");
+      setHoraInicio(medicamento.horaInicio || "");
     }
   }, []);
 
-  function guardarCambios() {
-    if (!nombre || !dosis || !frecuencia || !fechaInicio || !horaInicio) {
+  // ===========================
+  //       UPDATE en SQLite
+  // ===========================
+  async function guardarCambios() {
+    if (!nombre || !dosis || !frecuencia) {
       Alert.alert("Error", "Todos los campos obligatorios deben llenarse");
       return;
     }
 
-    Alert.alert("Cambios guardados", "El medicamento ha sido actualizado.");
-    
-    // Aquí después haremos el UPDATE en SQLite
-    navigation.goBack();
+    try {
+      await controller.initialize();
+
+      await controller.editarMedicamento(
+        medicamento.id,
+        nombre.trim(),
+        dosis.trim(),
+        frecuencia.trim()
+      );
+
+      Alert.alert("Completado", "El medicamento ha sido actualizado.");
+      navigation.navigate("PantallaMisMedicinas");
+
+
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    }
   }
 
+  // ===========================
+  //        DELETE en SQLite
+  // ===========================
   function eliminarMedicamento() {
     Alert.alert(
-      "Eliminar medicamento",
+      "Eliminar",
       "¿Seguro que deseas eliminar este medicamento?",
       [
         { text: "Cancelar", style: "cancel" },
         {
           text: "Eliminar",
           style: "destructive",
-          onPress: () => {
-            // Luego haremos DELETE real en SQLite
-            Alert.alert("Eliminado", "El medicamento ha sido borrado.");
-            navigation.goBack();
+          onPress: async () => {
+            try {
+              await controller.initialize();
+              await controller.eliminarMedicamento(medicamento.id);
+
+              Alert.alert("Eliminado", "El medicamento ha sido borrado.");
+
+              navigation.navigate("PantallaMisMedicinas");
+
+            } catch (error) {
+              Alert.alert("Error", error.message);
+            }
           },
         },
       ]
@@ -142,7 +173,9 @@ export default function PantallaEditarMedicamento({ route, navigation }) {
   );
 }
 
-// ESTILOS
+
+// ============= ESTILOS =============
+
 const styles = StyleSheet.create({
   container: {
     padding: 20,
