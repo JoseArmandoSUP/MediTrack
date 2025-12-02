@@ -34,7 +34,7 @@ export default function TabNavigation() {
       />
 
       <Tab.Screen
-        name="AgregarMedicamento"
+        name="Agregar Medicamento"
         component={PantallaAgregarMedicamento}
         options={{
           tabBarIcon: ({ color, size }) => (
