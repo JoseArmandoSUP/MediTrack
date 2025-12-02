@@ -70,7 +70,24 @@ export default function MisMedicinas({ navigation, route }) {
     // Usamos SafeAreaView para respetar "notch" / areas seguras en iOS,
     // y añadimos padding extra en Android para evitar que la vista pegue contra la barra superior.
     <SafeAreaView style={[styles.container, { paddingTop: androidTopPadding }]}>
-      <Text style={styles.title}>Mis Medicinas</Text>
+      {/* HEADER con botón que regresa a inicio */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => {
+            // Navegar a la pantalla principal de la app.
+            // Si prefieres que además limpie el historial, usa navigation.popToTop() o navigation.reset(...)
+            navigation.navigate("PantallaPrincipal");
+          }}
+          accessibilityLabel="Ir al inicio"
+        >
+          <Ionicons name="arrow-back" size={26} color="black" />
+        </TouchableOpacity>
+
+        <Text style={styles.title}>Mis Medicinas</Text>
+
+        {/* Spacer para centrar el título */}
+        <View style={{ width: 26 }} />
+      </View>
 
       {/* LOADING */}
       {loading ? (
@@ -112,7 +129,7 @@ export default function MisMedicinas({ navigation, route }) {
       )}
 
       {/* BOTÓN AGREGAR */}
-      <TouchableOpacity style={styles.addButton} onPress={irAgregar}>
+      <TouchableOpacity style={styles.addButton} onPress={irAgregar} accessibilityLabel="Agregar medicamento">
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>
     </SafeAreaView>
@@ -126,10 +143,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#E8F2FF",
     padding: 20,
   },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 15,
+  },
   title: {
+    flex: 1,
     fontSize: 22,
     fontWeight: "700",
-    marginBottom: 15,
+    textAlign: "center",
   },
   card: {
     backgroundColor: "white",
