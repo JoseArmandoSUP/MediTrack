@@ -1,26 +1,20 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  Button,
-  ScrollView,
-  Alert,
-  Switch,
-  Image
-} from "react-native";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert, Switch, Image } from "react-native";
+
+import { UsuarioController } from "../controllers/UsuarioController";
+
+const controller = new UsuarioController();
 
 export default function PantallaRegistro({ navigation }) {
-  
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
   const [accepted, setAccepted] = useState(false);
 
-  function register() {
+  async function AlertaRegistrar() {
+
     if (!name || !email || !pass || !confirmPass) {
       Alert.alert("Error", "Por favor llena todos los campos");
       return;
@@ -32,12 +26,34 @@ export default function PantallaRegistro({ navigation }) {
     }
 
     if (!accepted) {
-      Alert.alert("Error", "Debes aceptar los términos");
+      Alert.alert("Error", "Debe aceptar los términos");
       return;
     }
 
-    Alert.alert("Registro exitoso", "Ahora puedes iniciar sesión");
-    navigation.navigate("Login");
+    try {
+      await controller.initialize();
+
+      // Registrar usuario en SQLite
+      await controller.registrar(
+        name.trim(),
+        email.trim(),
+        pass.trim()
+      );
+
+      Alert.alert(
+        "Registro exitoso",
+        "Tu cuenta ha sido creada correctamente",
+        [
+          {
+            text: "Ir al login",
+            onPress: () => navigation.navigate("Login"),
+          }
+        ]
+      );
+
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    }
   }
 
   return (
@@ -69,7 +85,6 @@ export default function PantallaRegistro({ navigation }) {
         placeholder="Establecer contraseña"
         value={pass}
         onChangeText={setPass}
-        secureTextEntry
       />
 
       <TextInput
@@ -77,7 +92,6 @@ export default function PantallaRegistro({ navigation }) {
         placeholder="Confirmar contraseña"
         value={confirmPass}
         onChangeText={setConfirmPass}
-        secureTextEntry
       />
 
       {/* Aceptar términos */}
@@ -86,12 +100,12 @@ export default function PantallaRegistro({ navigation }) {
         <Text style={styles.acceptText}>He leído los términos y condiciones</Text>
       </View>
 
-      <TouchableOpacity onPress={() => Alert.alert("Términos", "Aquí van los términos...")}>
+      <TouchableOpacity onPress={() => Alert.alert("Acepto que mis datos seran usados con fines de lucro")}>
         <Text style={styles.terms}>Ver términos y condiciones</Text>
       </TouchableOpacity>
 
       {/* Botón principal */}
-      <TouchableOpacity style={styles.registerBtn} onPress={register}>
+      <TouchableOpacity style={styles.registerBtn} onPress={AlertaRegistrar}>
         <Text style={styles.registerText}>Registrarse</Text>
       </TouchableOpacity>
 
@@ -103,6 +117,7 @@ export default function PantallaRegistro({ navigation }) {
     </ScrollView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

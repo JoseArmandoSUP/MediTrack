@@ -9,56 +9,75 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { MedicamentoController } from "../controllers/MedicamentoController";
+
+const controller = new MedicamentoController();
 
 export default function PantallaEditarMedicamento({ route, navigation }) {
-  
-  // Recibimos los datos del medicamento desde la pantalla anterior
+
   const { medicamento } = route.params || {};
 
   // Estados del formulario
   const [nombre, setNombre] = useState("");
   const [dosis, setDosis] = useState("");
   const [frecuencia, setFrecuencia] = useState("");
-  const [notas, setNotas] = useState("");
-  const [fechaInicio, setFechaInicio] = useState("");
-  const [horaInicio, setHoraInicio] = useState("");
 
   useEffect(() => {
     if (medicamento) {
       setNombre(medicamento.nombre);
       setDosis(medicamento.dosis);
       setFrecuencia(medicamento.frecuencia);
-      setNotas(medicamento.notas);
-      setFechaInicio(medicamento.fechaInicio);
-      setHoraInicio(medicamento.horaInicio);
+
+      
     }
   }, []);
 
-  function guardarCambios() {
-    if (!nombre || !dosis || !frecuencia || !fechaInicio || !horaInicio) {
+  async function guardarCambios() {
+    if (!nombre || !dosis || !frecuencia) {
       Alert.alert("Error", "Todos los campos obligatorios deben llenarse");
       return;
     }
 
-    Alert.alert("Cambios guardados", "El medicamento ha sido actualizado.");
-    
-    // Aquí después haremos el UPDATE en SQLite
-    navigation.goBack();
+    try {
+      await controller.initialize();
+
+      await controller.editarMedicamento(
+        medicamento.id,
+        nombre.trim(),
+        dosis.trim(),
+        frecuencia.trim()
+      );
+
+      Alert.alert("Completado", "El medicamento ha sido actualizado.");
+      navigation.navigate("PantallaMisMedicinas");
+
+
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    }
   }
 
   function eliminarMedicamento() {
     Alert.alert(
-      "Eliminar medicamento",
+      "Eliminar",
       "¿Seguro que deseas eliminar este medicamento?",
       [
         { text: "Cancelar", style: "cancel" },
         {
           text: "Eliminar",
           style: "destructive",
-          onPress: () => {
-            // Luego haremos DELETE real en SQLite
-            Alert.alert("Eliminado", "El medicamento ha sido borrado.");
-            navigation.goBack();
+          onPress: async () => {
+            try {
+              await controller.initialize();
+              await controller.eliminarMedicamento(medicamento.id);
+
+              Alert.alert("Eliminado", "El medicamento ha sido borrado.");
+
+              navigation.navigate("PantallaMisMedicinas");
+
+            } catch (error) {
+              Alert.alert("Error", error.message);
+            }
           },
         },
       ]
@@ -99,14 +118,14 @@ export default function PantallaEditarMedicamento({ route, navigation }) {
         onChangeText={setFrecuencia}
       />
 
-      <TextInput
+      {/*<TextInput
         style={styles.input}
         placeholder="Notas adicionales"
         value={notas}
         onChangeText={setNotas}
-      />
+      />*/}
 
-      <View style={styles.row}>
+      {/*<View style={styles.row}>
         <View style={styles.dateButton}>
           <MaterialIcons name="date-range" size={20} color="#2D8BFF" />
           <TextInput
@@ -126,7 +145,7 @@ export default function PantallaEditarMedicamento({ route, navigation }) {
             onChangeText={setHoraInicio}
           />
         </View>
-      </View>
+      </View>*/}
 
       {/* BOTÓN GUARDAR CAMBIOS */}
       <TouchableOpacity style={styles.btnGuardar} onPress={guardarCambios}>
@@ -142,7 +161,9 @@ export default function PantallaEditarMedicamento({ route, navigation }) {
   );
 }
 
-// ESTILOS
+
+// ============= ESTILOS =============
+
 const styles = StyleSheet.create({
   container: {
     padding: 20,

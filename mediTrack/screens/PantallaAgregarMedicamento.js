@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,27 +6,56 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Alert,
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+
+import { MedicamentoController } from "../controllers/MedicamentoController";
+
+const controller = new MedicamentoController();
 
 export default function PantallaAgregarMedicamento({ navigation }) {
   // Estados
   const [nombre, setNombre] = useState("");
   const [dosis, setDosis] = useState("");
   const [frecuencia, setFrecuencia] = useState("");
-  const [notas, setNotas] = useState("");
-  const [fechaInicio, setFechaInicio] = useState("");
-  const [horaInicio, setHoraInicio] = useState("");
 
-  const [guardado, setGuardado] = useState(false);
+  const [guardando, setGuardando] = useState(false);
 
-  function guardarMedicamento() {
-    if (!nombre || !dosis || !frecuencia || !fechaInicio || !horaInicio) {
-      alert("Por favor llena todos los campos obligatorios");
+  // Inicializar SQLite una sola vez
+  useEffect(() => {
+    const init = async () => {
+      await controller.initialize();
+    };
+    init();
+  }, []);
+
+  async function guardarMedicamento() {
+    if (!nombre || !dosis || !frecuencia) {
+      Alert.alert("Campos incompletos", "Completa nombre, dosis y frecuencia");
       return;
     }
 
-    setGuardado(true);
+    try {
+      setGuardando(true);
+
+      // INSERT en SQLite usando MVC
+      await controller.crearMedicamento(nombre, dosis, frecuencia);
+
+      Alert.alert("Guardado", "Medicamento agregado correctamente");
+
+      // Limpiar campos
+      setNombre("");
+      setDosis("");
+      setFrecuencia("");
+
+      // Regresar automáticamente
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setGuardando(false);
+    }
   }
 
   return (
@@ -41,12 +70,6 @@ export default function PantallaAgregarMedicamento({ navigation }) {
         <View style={{ width: 30 }} />
       </View>
 
-      {/* Escanear receta */}
-      <TouchableOpacity style={styles.scanBox}>
-        <Ionicons name="scan-outline" size={40} color="#2D8BFF" />
-        <Text style={styles.scanText}>ESCANEAR RECETA MÉDICA</Text>
-      </TouchableOpacity>
-
       {/* FORMULARIO */}
       <TextInput
         style={styles.input}
@@ -57,26 +80,26 @@ export default function PantallaAgregarMedicamento({ navigation }) {
 
       <TextInput
         style={styles.input}
-        placeholder="Dosis eje. 50 mg"
+        placeholder="Dosis (eje. 50 mg)"
         value={dosis}
         onChangeText={setDosis}
       />
 
       <TextInput
         style={styles.input}
-        placeholder="Frecuencia"
+        placeholder="Frecuencia (eje. cada 8 horas)"
         value={frecuencia}
         onChangeText={setFrecuencia}
       />
 
-      <TextInput
+      {/*<TextInput
         style={styles.input}
         placeholder="Notas adicionales"
         value={notas}
         onChangeText={setNotas}
       />
 
-      {/* FECHA Y HORA */}
+      FECHA Y HORA 
       <View style={styles.row}>
         <TouchableOpacity style={styles.dateButton}>
           <MaterialIcons name="date-range" size={20} color="#2D8BFF" />
@@ -97,24 +120,17 @@ export default function PantallaAgregarMedicamento({ navigation }) {
             onChangeText={setHoraInicio}
           />
         </TouchableOpacity>
-      </View>
-
-      {/* CUADRO DE INFORMACIÓN GUARDADA */}
-      {guardado && (
-        <View style={styles.infoBox}>
-          <Text style={styles.infoTitle}>Información Guardada</Text>
-          <Text style={styles.infoText}>Medicamento: {nombre}</Text>
-          <Text style={styles.infoText}>Dosis: {dosis}</Text>
-          <Text style={styles.infoText}>Frecuencia: {frecuencia}</Text>
-          <Text style={styles.infoText}>Fecha de inicio: {fechaInicio}</Text>
-          <Text style={styles.infoText}>Hora de inicio: {horaInicio}</Text>
-          <Text style={styles.infoText}>Notas: {notas}</Text>
-        </View>
-      )}
+      </View>*/}
 
       {/* BOTÓN VERDE */}
-      <TouchableOpacity style={styles.btnAgregar} onPress={guardarMedicamento}>
-        <Text style={styles.btnText}>AGREGAR MEDICAMENTO</Text>
+      <TouchableOpacity
+        style={styles.btnAgregar}
+        onPress={guardarMedicamento}
+        disabled={guardando}
+      >
+        <Text style={styles.btnText}>
+          {guardando ? "Guardando..." : "AGREGAR MEDICAMENTO"}
+        </Text>
         <Ionicons name="add-circle-outline" size={30} color="#fff" />
       </TouchableOpacity>
     </ScrollView>
@@ -139,18 +155,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "700",
   },
-  scanBox: {
-    backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 12,
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  scanText: {
-    marginTop: 10,
-    fontSize: 14,
-    fontWeight: "600",
-  },
   input: {
     backgroundColor: "#fff",
     padding: 12,
@@ -172,21 +176,6 @@ const styles = StyleSheet.create({
   dateInput: {
     marginLeft: 10,
     flex: 1,
-  },
-  infoBox: {
-    backgroundColor: "#2D8BFF",
-    padding: 15,
-    borderRadius: 15,
-    marginTop: 20,
-  },
-  infoTitle: {
-    color: "#fff",
-    fontWeight: "700",
-    marginBottom: 10,
-  },
-  infoText: {
-    color: "#fff",
-    marginBottom: 5,
   },
   btnAgregar: {
     backgroundColor: "#00C851",
