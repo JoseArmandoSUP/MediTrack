@@ -19,9 +19,6 @@ export default function PantallaAgregarMedicamento({ navigation }) {
   const [nombre, setNombre] = useState("");
   const [dosis, setDosis] = useState("");
   const [frecuencia, setFrecuencia] = useState("");
-  const [notas, setNotas] = useState("");
-  const [fechaInicio, setFechaInicio] = useState("");
-  const [horaInicio, setHoraInicio] = useState("");
 
   const [guardando, setGuardando] = useState(false);
 
@@ -51,9 +48,6 @@ export default function PantallaAgregarMedicamento({ navigation }) {
       setNombre("");
       setDosis("");
       setFrecuencia("");
-      setNotas("");
-      setFechaInicio("");
-      setHoraInicio("");
 
       // Regresar automáticamente
       navigation.goBack();
@@ -98,14 +92,14 @@ export default function PantallaAgregarMedicamento({ navigation }) {
         onChangeText={setFrecuencia}
       />
 
-      <TextInput
+      {/*<TextInput
         style={styles.input}
         placeholder="Notas adicionales"
         value={notas}
         onChangeText={setNotas}
       />
 
-      {/* FECHA Y HORA */}
+      FECHA Y HORA 
       <View style={styles.row}>
         <TouchableOpacity style={styles.dateButton}>
           <MaterialIcons name="date-range" size={20} color="#2D8BFF" />
@@ -126,7 +120,7 @@ export default function PantallaAgregarMedicamento({ navigation }) {
             onChangeText={setHoraInicio}
           />
         </TouchableOpacity>
-      </View>
+      </View>*/}
 
       {/* BOTÓN VERDE */}
       <TouchableOpacity

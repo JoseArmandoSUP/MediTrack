@@ -1,23 +1,54 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet, Button, Alert, TouchableOpacity, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Button,
+  Alert,
+  TouchableOpacity,
+  ScrollView
+} from "react-native";
 
-export default function PantallaInicioSesion({ navigation}) {
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { UsuarioController } from "../controllers/UsuarioController";
+
+const controller = new UsuarioController();
+
+export default function PantallaInicioSesion({ navigation }) {
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  function handleLogin() {
-    if (email.trim() === "" || password.trim() === "") {
+  async function handleLogin() {
+
+    if (!email.trim() || !password.trim()) {
       Alert.alert("Error", "Ingresa tu correo y contraseña");
       return;
     }
 
-    // Navega al panel principal
-    navigation.replace("TabNavigation");
-  }
+    try {
+      await controller.initialize();
 
+      // Llamar al método de login del controller
+      const usuario = await controller.login(email.trim(), password.trim());
+
+      // Guardar sesión en AsyncStorage
+      await AsyncStorage.setItem("usuarioActivo", JSON.stringify(usuario));
+
+      Alert.alert("Sesion Iniciada de", `${usuario.nombre}`);
+
+      // Entrar al panel principal
+      navigation.replace("TabNavigation");
+
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    }
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      
       <Text style={styles.title}>Iniciar Sesión</Text>
 
       <Text style={styles.label}>Correo electrónico</Text>
@@ -43,17 +74,16 @@ export default function PantallaInicioSesion({ navigation}) {
         <Button title="Entrar" color="#2D7BE8" onPress={handleLogin} />
       </View>
 
-      <TouchableOpacity
-        onPress={() => Alert.alert("Recuperar contraseña", "Función demo")}
-      >
+      <TouchableOpacity onPress={() => navigation.navigate("PantallaRecuperar")}>
         <Text style={styles.forgot}>¿Olvidaste tu contraseña?</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        onPress={() => navigation.navigate("Registro")}
-      >
-        <Text style={styles.register}>¿No tienes cuenta? Regístrate aquí</Text>
+      <TouchableOpacity onPress={() => navigation.navigate("Registro")}>
+        <Text style={styles.register}>
+          ¿No tienes cuenta? Regístrate aquí
+        </Text>
       </TouchableOpacity>
+
     </ScrollView>
   );
 }

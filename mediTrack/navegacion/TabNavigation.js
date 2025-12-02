@@ -4,7 +4,7 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 import PantallaPrincipal from "../screens/PantallaPrincipal";
 import PantallaAgregarMedicamento from "../screens/PantallaAgregarMedicamento";
-//import Perfil from "../screens/Perfil";
+import Perfil from "../screens/Perfil";
 
 const Tab = createBottomTabNavigator();
 
@@ -43,7 +43,7 @@ export default function TabNavigation() {
         }}
       />
 
-      {/*<Tab.Screen
+      <Tab.Screen
         name="Perfil"
         component={Perfil}
         options={{
@@ -51,7 +51,7 @@ export default function TabNavigation() {
             <MaterialIcons name="person-outline" size={size} color={color} />
           ),
         }}
-      />*/}
+      />
 
     </Tab.Navigator>
   );

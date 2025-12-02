@@ -1,13 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-  ActivityIndicator
-} from "react-native";
+import {View,Text,StyleSheet,ScrollView,TouchableOpacity,Alert,ActivityIndicator} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 import { MedicamentoController } from "../controllers/MedicamentoController";
@@ -95,6 +87,9 @@ export default function MisMedicinas({ navigation, route }) {
                 <View>
                   <Text style={styles.cardTitle}>{item.nombre}</Text>
                   <Text style={styles.cardSubtitle}>
+                    Dosis: {item.dosis}
+                  </Text>
+                  <Text style={styles.cardSubtitle}>
                     Frecuencia: {item.frecuencia}
                   </Text>
                 </View>
@@ -104,6 +99,16 @@ export default function MisMedicinas({ navigation, route }) {
           )}
         </ScrollView>
       )}
+
+      <TouchableOpacity 
+        style={styles.backButtonBottom} 
+        onPress={() => navigation.navigate("PantallaPrincipal")}
+      >
+        <Ionicons name="home-outline" size={22} color="white" />
+        <Text style={{ color: "white", marginLeft: 8, fontWeight: "600" }}>
+          Volver al menú
+        </Text>
+      </TouchableOpacity>
 
       {/* BOTÓN AGREGAR */}
       <TouchableOpacity style={styles.addButton} onPress={irAgregar}>
@@ -124,6 +129,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "700",
     marginBottom: 15,
+    alignContent: "center"
   },
   card: {
     backgroundColor: "white",

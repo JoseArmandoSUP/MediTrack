@@ -21,9 +21,6 @@ export default function PantallaEditarMedicamento({ route, navigation }) {
   const [nombre, setNombre] = useState("");
   const [dosis, setDosis] = useState("");
   const [frecuencia, setFrecuencia] = useState("");
-  const [notas, setNotas] = useState("");   // No se guarda, solo decorativo
-  const [fechaInicio, setFechaInicio] = useState(""); // No se guarda
-  const [horaInicio, setHoraInicio] = useState("");   // No se guarda
 
   useEffect(() => {
     if (medicamento) {
@@ -31,16 +28,10 @@ export default function PantallaEditarMedicamento({ route, navigation }) {
       setDosis(medicamento.dosis);
       setFrecuencia(medicamento.frecuencia);
 
-      // Estos valores no existen en BD (opcional visual)
-      setNotas(medicamento.notas || "");
-      setFechaInicio(medicamento.fechaInicio || "");
-      setHoraInicio(medicamento.horaInicio || "");
+      
     }
   }, []);
 
-  // ===========================
-  //       UPDATE en SQLite
-  // ===========================
   async function guardarCambios() {
     if (!nombre || !dosis || !frecuencia) {
       Alert.alert("Error", "Todos los campos obligatorios deben llenarse");
@@ -66,9 +57,6 @@ export default function PantallaEditarMedicamento({ route, navigation }) {
     }
   }
 
-  // ===========================
-  //        DELETE en SQLite
-  // ===========================
   function eliminarMedicamento() {
     Alert.alert(
       "Eliminar",
@@ -130,14 +118,14 @@ export default function PantallaEditarMedicamento({ route, navigation }) {
         onChangeText={setFrecuencia}
       />
 
-      <TextInput
+      {/*<TextInput
         style={styles.input}
         placeholder="Notas adicionales"
         value={notas}
         onChangeText={setNotas}
-      />
+      />*/}
 
-      <View style={styles.row}>
+      {/*<View style={styles.row}>
         <View style={styles.dateButton}>
           <MaterialIcons name="date-range" size={20} color="#2D8BFF" />
           <TextInput
@@ -157,7 +145,7 @@ export default function PantallaEditarMedicamento({ route, navigation }) {
             onChangeText={setHoraInicio}
           />
         </View>
-      </View>
+      </View>*/}
 
       {/* BOTÓN GUARDAR CAMBIOS */}
       <TouchableOpacity style={styles.btnGuardar} onPress={guardarCambios}>
