@@ -1,17 +1,9 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { insertMedicamento } from "../database/database";
 
 export default function PantallaAgregarMedicamento({ navigation }) {
-  // Estados
   const [nombre, setNombre] = useState("");
   const [dosis, setDosis] = useState("");
   const [frecuencia, setFrecuencia] = useState("");
@@ -19,189 +11,166 @@ export default function PantallaAgregarMedicamento({ navigation }) {
   const [fechaInicio, setFechaInicio] = useState("");
   const [horaInicio, setHoraInicio] = useState("");
 
-  const [guardado, setGuardado] = useState(false);
-
   function guardarMedicamento() {
     if (!nombre || !dosis || !frecuencia || !fechaInicio || !horaInicio) {
       alert("Por favor llena todos los campos obligatorios");
       return;
     }
 
-    setGuardado(true);
+    const med = { nombre, dosis, frecuencia, notas, fechaInicio, horaInicio };
+
+    insertMedicamento(med, (err) => {
+      if (err) {
+        alert("Error al guardar medicamento");
+      } else {
+        alert("Medicamento guardado");
+        navigation.navigate("MisMedicamentos");
+      }
+    });
   }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      
-      {/* ENCABEZADO */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={26} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>AGREGAR MEDICAMENTO +</Text>
-        <View style={{ width: 30 }} />
-      </View>
+      <TextInput style={styles.input} placeholder="Nombre" value={nombre} onChangeText={setNombre} />
+      <TextInput style={styles.input} placeholder="Dosis" value={dosis} onChangeText={setDosis} />
+      <TextInput style={styles.input} placeholder="Frecuencia" value={frecuencia} onChangeText={setFrecuencia} />
+      <TextInput style={styles.input} placeholder="Notas" value={notas} onChangeText={setNotas} />
+      <TextInput style={styles.input} placeholder="Fecha inicio" value={fechaInicio} onChangeText={setFechaInicio} />
+      <TextInput style={styles.input} placeholder="Hora inicio" value={horaInicio} onChangeText={setHoraInicio} />
 
-      {/* Escanear receta */}
-      <TouchableOpacity style={styles.scanBox}>
-        <Ionicons name="scan-outline" size={40} color="#2D8BFF" />
-        <Text style={styles.scanText}>ESCANEAR RECETA MÉDICA</Text>
-      </TouchableOpacity>
-
-      {/* FORMULARIO */}
-      <TextInput
-        style={styles.input}
-        placeholder="Nombre del medicamento"
-        value={nombre}
-        onChangeText={setNombre}
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Dosis eje. 50 mg"
-        value={dosis}
-        onChangeText={setDosis}
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Frecuencia"
-        value={frecuencia}
-        onChangeText={setFrecuencia}
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Notas adicionales"
-        value={notas}
-        onChangeText={setNotas}
-      />
-
-      {/* FECHA Y HORA */}
-      <View style={styles.row}>
-        <TouchableOpacity style={styles.dateButton}>
-          <MaterialIcons name="date-range" size={20} color="#2D8BFF" />
-          <TextInput
-            style={styles.dateInput}
-            placeholder="Fecha de inicio"
-            value={fechaInicio}
-            onChangeText={setFechaInicio}
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.dateButton}>
-          <Ionicons name="time-outline" size={20} color="#2D8BFF" />
-          <TextInput
-            style={styles.dateInput}
-            placeholder="Hora de inicio"
-            value={horaInicio}
-            onChangeText={setHoraInicio}
-          />
-        </TouchableOpacity>
-      </View>
-
-      {/* CUADRO DE INFORMACIÓN GUARDADA */}
-      {guardado && (
-        <View style={styles.infoBox}>
-          <Text style={styles.infoTitle}>Información Guardada</Text>
-          <Text style={styles.infoText}>Medicamento: {nombre}</Text>
-          <Text style={styles.infoText}>Dosis: {dosis}</Text>
-          <Text style={styles.infoText}>Frecuencia: {frecuencia}</Text>
-          <Text style={styles.infoText}>Fecha de inicio: {fechaInicio}</Text>
-          <Text style={styles.infoText}>Hora de inicio: {horaInicio}</Text>
-          <Text style={styles.infoText}>Notas: {notas}</Text>
-        </View>
-      )}
-
-      {/* BOTÓN VERDE */}
       <TouchableOpacity style={styles.btnAgregar} onPress={guardarMedicamento}>
-        <Text style={styles.btnText}>AGREGAR MEDICAMENTO</Text>
+        <Text style={styles.btnText}>AGREGAR</Text>
         <Ionicons name="add-circle-outline" size={30} color="#fff" />
       </TouchableOpacity>
     </ScrollView>
   );
 }
 
-// ESTILOS
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: "#E8F2FF",
+    backgroundColor: "#F5F9FF",
     flexGrow: 1,
   },
+
+  // HEADER
   header: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 25,
+    paddingVertical: 10,
   },
   headerTitle: {
     flex: 1,
     textAlign: "center",
-    fontSize: 18,
-    fontWeight: "700",
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#1A1A1A",
   },
+
+  // TARJETA ESCANEAR
   scanBox: {
-    backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
+    padding: 25,
+    borderRadius: 20,
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 25,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+    elevation: 4,
   },
   scanText: {
-    marginTop: 10,
-    fontSize: 14,
-    fontWeight: "600",
+    marginTop: 12,
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#2D8BFF",
   },
+
+  // INPUTS
   input: {
     backgroundColor: "#fff",
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 15,
+    padding: 14,
+    borderRadius: 14,
+    marginBottom: 18,
+    borderWidth: 1,
+    borderColor: "#D6E4FF",
+    fontSize: 15,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
+
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
+    marginTop: 10,
   },
+
   dateButton: {
     backgroundColor: "#fff",
-    padding: 12,
-    borderRadius: 12,
+    padding: 14,
+    borderRadius: 14,
     flexDirection: "row",
     alignItems: "center",
     width: "48%",
+    borderWidth: 1,
+    borderColor: "#D6E4FF",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
+
   dateInput: {
     marginLeft: 10,
     flex: 1,
+    fontSize: 15,
   },
+
+  // INFO GUARDADA
   infoBox: {
     backgroundColor: "#2D8BFF",
-    padding: 15,
-    borderRadius: 15,
-    marginTop: 20,
+    padding: 18,
+    borderRadius: 18,
+    marginTop: 25,
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
   },
   infoTitle: {
     color: "#fff",
-    fontWeight: "700",
-    marginBottom: 10,
+    fontWeight: "800",
+    marginBottom: 12,
+    fontSize: 17,
   },
   infoText: {
     color: "#fff",
-    marginBottom: 5,
+    marginBottom: 6,
+    fontSize: 14,
   },
+
+  // BOTÓN PRINCIPAL
   btnAgregar: {
     backgroundColor: "#00C851",
-    padding: 15,
+    paddingVertical: 16,
     borderRadius: 50,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 30,
+    marginTop: 35,
+    shadowColor: "#00C851",
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 5,
   },
   btnText: {
     color: "#fff",
     fontSize: 18,
-    fontWeight: "700",
-    marginRight: 10,
+    fontWeight: "800",
+    marginRight: 12,
   },
 });

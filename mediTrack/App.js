@@ -5,9 +5,10 @@ import { initDB } from "./database/database";
 
 export default function App() {
 
-  useEffect (()=> {
-    initDB();
-  }, []);
+  useEffect(() => {
+  initDB();
+}, []);
+
 
   return (
     <NavigationContainer>
