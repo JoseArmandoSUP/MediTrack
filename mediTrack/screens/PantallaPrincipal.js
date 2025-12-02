@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -10,11 +10,14 @@ import {
   PixelRatio,
   Platform,
   StatusBar,
+  Alert,
+  Modal,
+  Pressable,
 } from "react-native";
 import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 
 export default function PantallaPrincipal({ navigation }) {
-  const { width, height } = useWindowDimensions();
+  const { width } = useWindowDimensions();
   const guidelineBaseWidth = 375;
   const scale = width / guidelineBaseWidth;
 
@@ -56,6 +59,32 @@ export default function PantallaPrincipal({ navigation }) {
     { name: "Ibuprofeno 300 mg", time: "Mañana a las 07:00" },
     { name: "Dropropizina 10 ml", time: "Mañana a las 06:00" },
   ];
+
+  // Estado para el modal de Historial
+  const [historialVisible, setHistorialVisible] = useState(false);
+
+  // Ejemplo de items de historial (puedes reemplazar por datos reales)
+  const historyItems = [
+    { id: "1", title: "Paracetamol 500 mg", date: "2025-11-30 20:00", note: "Tomado" },
+    { id: "2", title: "Ibuprofeno 300 mg", date: "2025-11-30 07:00", note: "Pendiente" },
+    { id: "3", title: "Dropropizina 10 ml", date: "2025-11-29 06:00", note: "Tomado" },
+  ];
+
+  const notAvailableAlert = (title = "Próximamente") => {
+    Alert.alert(
+      title,
+      "Esta función aún no está disponible. Estamos trabajando en ello.",
+      [{ text: "Aceptar" }]
+    );
+  };
+
+  const openHistorial = () => {
+    setHistorialVisible(true);
+  };
+
+  const closeHistorial = () => {
+    setHistorialVisible(false);
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -110,23 +139,84 @@ export default function PantallaPrincipal({ navigation }) {
           <Text style={styles.optionText}>Mis medicinas</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.option} activeOpacity={0.7}>
+        <TouchableOpacity
+          style={styles.option}
+          activeOpacity={0.7}
+          onPress={() => notAvailableAlert("Recordatorios")}
+          accessibilityRole="button"
+          accessibilityLabel="Recordatorios no disponibles"
+        >
           <FontAwesome5 name="bell" size={styles.iconSize} color="#2D8BFF" />
           <Text style={styles.optionText}>Recordatorios</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.option} activeOpacity={0.7}>
+        <TouchableOpacity
+          style={styles.option}
+          activeOpacity={0.7}
+          onPress={openHistorial}
+          accessibilityRole="button"
+          accessibilityLabel="Abrir historial"
+        >
           <MaterialIcons name="history" size={styles.iconSize} color="#2D8BFF" />
           <Text style={styles.optionText}>Historial</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.option} activeOpacity={0.7}>
+        <TouchableOpacity
+          style={styles.option}
+          activeOpacity={0.7}
+          onPress={() => notAvailableAlert("Reportes")}
+          accessibilityRole="button"
+          accessibilityLabel="Reportes no disponibles"
+        >
           <MaterialIcons name="description" size={styles.iconSize} color="#2D8BFF" />
           <Text style={styles.optionText}>Reportes</Text>
         </TouchableOpacity>
-
-        {/* Opción "Editar Medicamento" eliminada según tu petición */}
       </ScrollView>
+
+      {/* Modal de Historial */}
+      <Modal
+        visible={historialVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={closeHistorial}
+      >
+        <View style={modalStyles.overlay}>
+          <View style={modalStyles.content}>
+            <View style={modalStyles.header}>
+              <Text style={modalStyles.title}>Historial de medicación</Text>
+              <Pressable onPress={closeHistorial} accessibilityLabel="Cerrar historial" style={modalStyles.closeBtn}>
+                <Ionicons name="close" size={22} color="#444" />
+              </Pressable>
+            </View>
+
+            <ScrollView style={modalStyles.body} contentContainerStyle={{ paddingBottom: 12 }}>
+              {historyItems.length === 0 ? (
+                <View style={modalStyles.empty}>
+                  <Text style={modalStyles.emptyText}>No hay elementos en el historial</Text>
+                </View>
+              ) : (
+                historyItems.map((h) => (
+                  <View key={h.id} style={modalStyles.historyItem}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={modalStyles.historyTitle}>{h.title}</Text>
+                      <Text style={modalStyles.historyDate}>{h.date}</Text>
+                    </View>
+                    <Text style={[modalStyles.historyNote, { color: h.note === "Tomado" ? "#2D8BFF" : "#FF7A7A" }]}>
+                      {h.note}
+                    </Text>
+                  </View>
+                ))
+              )}
+            </ScrollView>
+
+            <View style={modalStyles.footer}>
+              <TouchableOpacity style={modalStyles.actionBtn} onPress={closeHistorial}>
+                <Text style={modalStyles.actionText}>Cerrar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -143,7 +233,6 @@ function createStyles(s) {
     optionPadding,
     optionFont,
     iconBase,
-    width,
     androidTopPadding,
   } = s;
 
@@ -246,3 +335,84 @@ function createStyles(s) {
 function clampFont(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
+
+const modalStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.45)",
+    justifyContent: "center",
+    padding: 18,
+  },
+  content: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    overflow: "hidden",
+    maxHeight: "85%",
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "#eee",
+  },
+  title: {
+    flex: 1,
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#111",
+  },
+  closeBtn: {
+    padding: 6,
+  },
+  body: {
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  historyItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "#f0f0f0",
+  },
+  historyTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#222",
+  },
+  historyDate: {
+    fontSize: 13,
+    color: "#666",
+    marginTop: 4,
+  },
+  historyNote: {
+    marginLeft: 12,
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  empty: {
+    paddingVertical: 36,
+    alignItems: "center",
+  },
+  emptyText: {
+    color: "#666",
+  },
+  footer: {
+    padding: 12,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: "#eee",
+    alignItems: "flex-end",
+  },
+  actionBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    backgroundColor: "#2D8BFF",
+    borderRadius: 8,
+  },
+  actionText: {
+    color: "#fff",
+    fontWeight: "700",
+  },
+});
